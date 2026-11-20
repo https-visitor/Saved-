@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUDRA CLOUD DRIVE — Personal Files, Images & Videos Vault</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: rgba(18, 24, 38, 0.78);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-glow: rgba(168, 85, 247, 0.35);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --primary-gradient: linear-gradient(135deg, #a855f7 0%, #d946ef 50%, #f59e0b 100%);
+            --accent-purple: #a855f7;
+            --accent-gold: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #38bdf8;
+            --shadow-glow: 0 8px 32px 0 rgba(168, 85, 247, 0.18);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 12% 15%, rgba(168, 85, 247, 0.12), transparent 40%),
+                              radial-gradient(circle at 88% 85%, rgba(245, 158, 11, 0.08), transparent 40%);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-gradient {
+            background: var(--primary-gradient);
+            color: #fff;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
+        }
+
+        .btn-glass {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            color: var(--text-primary);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Auth Screen */
+        #authView {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(18px);
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-glow);
+        }
+        .auth-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-glass);
+        }
+        .auth-switch-btn {
+            padding: 9px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .auth-switch-btn.active {
+            background: var(--primary-gradient);
+            color: #fff;
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-control {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 11px 14px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            border-color: var(--accent-purple);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 12px 20px;
+        }
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .main-container {
+            max-width: 1300px;
+            margin: 22px auto;
+            padding: 0 20px 60px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        @media(min-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            padding: 16px;
+            border-radius: var(--radius-md);
+        }
+        .stat-value {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        /* Upload Zone */
+        .upload-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 22px;
+        }
+        .drop-box {
+            border: 2px dashed rgba(168, 85, 247, 0.45);
+            background: rgba(168, 85, 247, 0.05);
+            border-radius: var(--radius-md);
+            padding: 28px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .drop-box:hover, .drop-box.dragover {
+            border-color: var(--accent-gold);
+            background: rgba(168, 85, 247, 0.12);
+        }
+
+        /* Filter Bar */
+        .filter-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .cat-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .cat-chip {
+            padding: 7px 16px;
+            border-radius: 99px;
+            background: rgba(18, 24, 38, 0.7);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        .cat-chip.active, .cat-chip:hover {
+            background: var(--primary-gradient);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        /* Files Grid */
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+        @media(min-width: 768px) {
+            .files-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        }
+        @media(min-width: 1024px) {
+            .files-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        }
+
+        .file-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        .file-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-glass-glow);
+            box-shadow: var(--shadow-glow);
+        }
+        .file-thumb {
+            position: relative;
+            width: 100%;
+            height: 165px;
+            background: #070b14;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .file-thumb img, .file-thumb video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+        .file-card:hover .file-thumb img {
+            transform: scale(1.04);
+        }
+        .badge-type {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(11, 15, 25, 0.88);
+            border: 1px solid var(--border-glass);
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 99px;
+            text-transform: uppercase;
+        }
+        .badge-size {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(11, 15, 25, 0.88);
+            color: var(--accent-gold);
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+        .file-info {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+        .file-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        .file-title:hover { color: var(--accent-purple); }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: #0f172a;
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 22px;
+            position: relative;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65);
+        }
+
+        /* Toast */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(18, 24, 38, 0.96);
+            border: 1px solid var(--accent-purple);
+            color: #fff;
+            padding: 11px 20px;
+            border-radius: 99px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-glow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideUp 0.3s ease forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN / REGISTER SCREEN -->
+    <div id="authView">
+        <div class="auth-box">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(168,85,247,0.15); border: 1px solid var(--accent-purple); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 1.5rem;">
+                    <i class="fa-solid fa-cloud-arrow-up gradient-text"></i>
+                </div>
+                <h1 style="font-size: 1.45rem; font-weight: 800;">RUDRA <span class="gradient-text">CLOUD DRIVE</span></h1>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Save Images, Video Clips & Files — Access Anywhere</p>
+            </div>
+
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn active" id="btnModeLogin" onclick="app.setAuthMode('login')">Login</button>
+                <button type="button" class="auth-switch-btn" id="btnModeRegister" onclick="app.setAuthMode('register')">Create Account</button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); app.submitAuth();">
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" id="authUser" class="form-control" placeholder="e.g. saurabh123" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="authPass" class="form-control" placeholder="Enter your password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" id="authSubmitBtn" class="btn-gradient" style="width: 100%; padding: 12px; font-size: 0.95rem; margin-top: 4px;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login to Cloud Drive
+                </button>
+            </form>
+
+            <div style="margin-top: 16px; text-align: center; font-size: 0.74rem; color: var(--text-muted);">
+                <i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i> Same E-Commerce Cloud Architecture • Multi-Device Sync
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CLOUD DRIVE DASHBOARD -->
+    <div id="driveView" style="display: none;">
+        <header>
+            <div class="nav-container">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-bolt gradient-text" style="font-size: 1.35rem;"></i>
+                    <div>
+                        <div style="font-size: 1.15rem; font-weight: 800;">RUDRA <span class="gradient-text">CLOUD DRIVE</span></div>
+                        <div style="font-size: 0.72rem; color: var(--accent-green); font-weight: 700;">
+                            ● Account: <span id="loggedUsername" style="color: #fff;">@user</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="app.openModal('passwordModal')">
+                        <i class="fa-solid fa-key"></i> Password
+                    </button>
+                    <button class="btn-glass" style="padding: 8px 12px; font-size: 0.8rem; color: var(--accent-red);" onclick="app.logout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-container">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div style="font-size: 0.76rem; color: var(--text-muted);">Cloud Storage Used</div>
+                    <div class="stat-value gradient-text" id="statStorageUsed">0 B</div>
+                </div>
+                <div class="stat-card">
+                    <div style="font-size: 0.76rem; color: var(--text-muted);">Saved Images</div>
+                    <div class="stat-value" style="color: var(--accent-purple);" id="statImagesCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div style="font-size: 0.76rem; color: var(--text-muted);">Video Clips</div>
+                    <div class="stat-value" style="color: var(--accent-gold);" id="statVideosCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div style="font-size: 0.76rem; color: var(--text-muted);">Files & Docs</div>
+                    <div class="stat-value" style="color: var(--accent-blue);" id="statDocsCount">0</div>
+                </div>
+            </div>
+
+            <!-- Upload Panel -->
+            <div class="upload-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <h3 style="font-size: 1rem; font-weight: 800;">
+                            <i class="fa-solid fa-cloud-arrow-up gradient-text"></i> Upload Images, Video Clips & Any File
+                        </h3>
+                        <p style="font-size: 0.78rem; color: var(--text-secondary);">
+                            Apne phone ya PC storage se kisi bhi photo, short video clip, PDF, ZIP ya document ko cloud mein save karein
+                        </p>
+                    </div>
+                </div>
+
+                <div class="drop-box" id="dropZone" onclick="document.getElementById('driveFileInput').click()">
+                    <i class="fa-solid fa-folder-open gradient-text" style="font-size: 2.3rem; margin-bottom: 8px;"></i>
+                    <div style="font-size: 0.95rem; font-weight: 700;">Click to Select Files / Images / Videos or Drag & Drop</div>
+                    <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 4px;">
+                        Multiple files supported • Saved directly in Firebase Cloud
+                    </div>
+                    <input type="file" id="driveFileInput" multiple style="display: none;" onchange="app.uploadSelectedFiles(this.files)">
+                </div>
+
+                <div id="uploadStatusMsg" style="font-size: 0.78rem; color: var(--accent-gold); font-weight: 700; margin-top: 8px;"></div>
+            </div>
+
+            <!-- Category Filter & Search -->
+            <div class="filter-toolbar">
+                <div class="cat-chips">
+                    <button class="cat-chip active" id="chip-all" onclick="app.setCategory('all')">All Files</button>
+                    <button class="cat-chip" id="chip-image" onclick="app.setCategory('image')"><i class="fa-solid fa-image"></i> Images</button>
+                    <button class="cat-chip" id="chip-video" onclick="app.setCategory('video')"><i class="fa-solid fa-video"></i> Video Clips</button>
+                    <button class="cat-chip" id="chip-doc" onclick="app.setCategory('doc')"><i class="fa-solid fa-file-lines"></i> Files & Docs</button>
+                </div>
+
+                <div style="position: relative; width: 100%; max-width: 300px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
+                    <input type="text" class="form-control" style="padding: 8px 14px 8px 38px; border-radius: 99px; font-size: 0.84rem;" placeholder="Search saved files..." oninput="app.setSearch(this.value)">
+                </div>
+            </div>
+
+            <!-- Files Grid -->
+            <div class="files-grid" id="filesGrid"></div>
+        </main>
+    </div>
+
+    <!-- MEDIA / FILE PREVIEW MODAL -->
+    <div class="modal" id="previewModal" onclick="if(event.target===this) app.closePreview()">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px;">
+                <div style="min-width: 0;">
+                    <h3 id="previewFileName" style="font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Preview</h3>
+                    <div id="previewFileMeta" style="font-size: 0.74rem; color: var(--text-secondary);"></div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                    <button class="btn-gradient" style="padding: 8px 14px; font-size: 0.8rem;" id="previewDownloadBtn">
+                        <i class="fa-solid fa-download"></i> Download
+                    </button>
+                    <button class="btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="app.closePreview()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="previewMediaBox" style="background: #060911; border-radius: 14px; padding: 14px; min-height: 240px; display: flex; align-items: center; justify-content: center; text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- CHANGE PASSWORD MODAL -->
+    <div class="modal" id="passwordModal" onclick="if(event.target===this) app.closeModal('passwordModal')">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 14px;">
+                <i class="fa-solid fa-key gradient-text"></i> Change Password
+            </h3>
+            <form onsubmit="event.preventDefault(); app.updatePassword();">
+                <div class="form-group">
+                    <label>Current Password *</label>
+                    <input type="password" id="currPassInp" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password *</label>
+                    <input type="password" id="newPassInp" class="form-control" minlength="4" required>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn-gradient" style="flex: 1; padding: 10px;">Save Password</button>
+                    <button type="button" class="btn-glass" style="padding: 10px 14px;" onclick="app.closeModal('passwordModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Firebase v10 Modular SDK (Exact same SDK & DB as your working E-Commerce App) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getDatabase, ref, set, get, update, remove, onValue, off } 
+               from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
+        // Same Working Firebase Configuration from your E-Commerce App
+        const firebaseConfig = {
+            apiKey: "AIzaSyDeJeap763kAEYjjCXaTP4EEDfvmE29hEw",
+            authDomain: "saurabhadmin-fd6cb.firebaseapp.com",
+            databaseURL: "https://saurabhadmin-fd6cb-default-rtdb.firebaseio.com",
+            projectId: "saurabhadmin-fd6cb",
+            storageBucket: "saurabhadmin-fd6cb.firebasestorage.app",
+            messagingSenderId: "1094207249669",
+            appId: "1:1094207249669:web:66b4c2f55805c44be52b6c"
+        };
+
+        const fbApp = initializeApp(firebaseConfig);
+        const db = getDatabase(fbApp);
+
+        window.state = {
+            authMode: 'login',
+            currentUser: null,
+            files: {},
+            activeCategory: 'all',
+            searchQuery: '',
+            activeListener: null
+        };
+
+        const app = {
+            init() {
+                this.setupDragAndDrop();
+                const savedUser = localStorage.getItem('rudra_drive_username');
+                if (savedUser) {
+                    this.openDashboard(savedUser, false);
+                }
+            },
+
+            setAuthMode(mode) {
+                state.authMode = mode;
+                document.getElementById('btnModeLogin').classList.toggle('active', mode === 'login');
+                document.getElementById('btnModeRegister').classList.toggle('active', mode === 'register');
+                document.getElementById('authSubmitBtn').innerHTML = mode === 'login'
+                    ? `<i class="fa-solid fa-right-to-bracket"></i> Login to Cloud Drive`
+                    : `<i class="fa-solid fa-user-plus"></i> Create Account & Login`;
+            },
+
+            cleanUsername(u) {
+                return u.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+            },
+
+            async submitAuth() {
+                const rawUser = document.getElementById('authUser').value;
+                const password = document.getElementById('authPass').value.trim();
+                const username = this.cleanUsername(rawUser);
+
+                if (username.length < 3) {
+                    this.showToast('Username kam se kam 3 letters/numbers ka hona chahiye.');
+                    return;
+                }
+                if (password.length < 4) {
+                    this.showToast('Password kam se kam 4 characters ka rakhein.');
+                    return;
+                }
+
+                const btn = document.getElementById('authSubmitBtn');
+                btn.disabled = true;
+
+                try {
+                    // Exact E-Commerce style path: cloudUsers/{username}
+                    const userRef = ref(db, `cloudUsers/${username}`);
+                    const snap = await get(userRef);
+
+                    if (state.authMode === 'register') {
+                        if (snap.exists()) {
+                            this.showToast('❌ Yeh username pehle se bana hua hai! Login karein.');
+                            btn.disabled = false;
+                            return;
+                        }
+                        await set(userRef, {
+                            username: username,
+                            password: password,
+                            createdAt: Date.now()
+                        });
+                        this.showToast('🎉 Account ban gaya! Logging in...');
+                        this.openDashboard(username, true);
+                    } else {
+                        if (!snap.exists()) {
+                            this.showToast('❌ Account nahi mila! Pehle "Create Account" par click karein.');
+                            btn.disabled = false;
+                            return;
+                        }
+                        const data = snap.val();
+                        if (data.password !== password) {
+                            this.showToast('❌ Galat Password!');
+                            btn.disabled = false;
+                            return;
+                        }
+                        this.openDashboard(username, true);
+                    }
+                } catch (err) {
+                    this.showToast('Error: ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                }
+            },
+
+            openDashboard(username, notify = true) {
+                state.currentUser = username;
+                localStorage.setItem('rudra_drive_username', username);
+
+                document.getElementById('authView').style.display = 'none';
+                document.getElementById('driveView').style.display = 'block';
+                document.getElementById('loggedUsername').innerText = `@${username}`;
+                document.getElementById('authPass').value = '';
+
+                if (notify) this.showToast(`Welcome, @${username}!`);
+
+                if (state.activeListener) off(state.activeListener);
+
+                // Exact E-Commerce style listener: cloudFiles/{username}
+                state.activeListener = ref(db, `cloudFiles/${username}`);
+                onValue(state.activeListener, (snapshot) => {
+                    state.files = snapshot.val() || {};
+                    this.updateStats();
+                    this.renderFiles();
+                });
+            },
+
+            logout() {
+                if (state.activeListener) off(state.activeListener);
+                state.currentUser = null;
+                state.files = {};
+                localStorage.removeItem('rudra_drive_username');
+                document.getElementById('driveView').style.display = 'none';
+                document.getElementById('authView').style.display = 'flex';
+                this.showToast('Logged out successfully.');
+            },
+
+            async updatePassword() {
+                const curr = document.getElementById('currPassInp').value.trim();
+                const next = document.getElementById('newPassInp').value.trim();
+                if (!state.currentUser || next.length < 4) return;
+
+                const userRef = ref(db, `cloudUsers/${state.currentUser}`);
+                const snap = await get(userRef);
+                if (!snap.exists() || snap.val().password !== curr) {
+                    this.showToast('❌ Current password galat hai!');
+                    return;
+                }
+
+                await update(userRef, { password: next });
+                document.getElementById('currPassInp').value = '';
+                document.getElementById('newPassInp').value = '';
+                this.closeModal('passwordModal');
+                this.showToast('✅ Password updated!');
+            },
+
+            setupDragAndDrop() {
+                const zone = document.getElementById('dropZone');
+                ['dragenter', 'dragover'].forEach(ev => {
+                    zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('dragover'); });
+                });
+                ['dragleave', 'drop'].forEach(ev => {
+                    zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('dragover'); });
+                });
+                zone.addEventListener('drop', e => {
+                    if (e.dataTransfer.files.length) this.uploadSelectedFiles(e.dataTransfer.files);
+                });
+            },
+
+            getFileCategory(mime, name) {
+                if (mime.startsWith('image/')) return 'image';
+                if (mime.startsWith('video/')) return 'video';
+                const ext = (name.split('.').pop() || '').toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(ext)) return 'image';
+                if (['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext)) return 'video';
+                return 'doc';
+            },
+
+            formatBytes(bytes) {
+                if (!bytes || bytes <= 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            },
+
+            // Exact same image compression logic used in your E-Commerce Admin Panel
+            compressImage(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_SIZE = 900;
+                            let w = img.width;
+                            let h = img.height;
+                            if (w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; }
+                            else if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
+                            canvas.width = Math.round(w);
+                            canvas.height = Math.round(h);
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            resolve(canvas.toDataURL('image/jpeg', 0.80));
+                        };
+                        img.onerror = () => resolve(e.target.result);
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            },
+
+            readBinaryAsDataUrl(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error('File read error'));
+                    reader.readAsDataURL(file);
+                });
+            },
+
+            async uploadSelectedFiles(fileList) {
+                if (!state.currentUser) return;
+                const files = Array.from(fileList || []);
+                if (!files.length) return;
+
+                const statusEl = document.getElementById('uploadStatusMsg');
+                let savedCount = 0;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const category = this.getFileCategory(file.type || '', file.name);
+
+                    if (file.size > 8 * 1024 * 1024 && category !== 'image') {
+                        this.showToast(`⚠️ "${file.name}" 8 MB se bada hai. Choti clip/file select karein.`);
+                        continue;
+                    }
+
+                    statusEl.innerText = `⏳ Saving (${i + 1}/${files.length}): ${file.name}...`;
+
+                    try {
+                        const fileDataUrl = category === 'image'
+                            ? await this.compressImage(file)
+                            : await this.readBinaryAsDataUrl(file);
+
+                        // Exact E-Commerce style ID & set(ref(db, ...)) saving
+                        const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+                        const payload = {
+                            id: fileId,
+                            name: file.name,
+                            category: category,
+                            mimeType: file.type || 'application/octet-stream',
+                            sizeBytes: new Blob([fileDataUrl]).size,
+                            fileUrl: fileDataUrl,
+                            uploadedAt: Date.now()
+                        };
+
+                        await set(ref(db, `cloudFiles/${state.currentUser}/${fileId}`), payload);
+                        savedCount++;
+                    } catch (err) {
+                        this.showToast(`❌ Failed (${file.name}): ${err.message}`);
+                    }
+                }
+
+                statusEl.innerText = '';
+                document.getElementById('driveFileInput').value = '';
+
+                if (savedCount > 0) {
+                    this.showToast(`✅ ${savedCount} file(s) saved to Firebase Cloud!`);
+                }
+            },
+
+            updateStats() {
+                const list = Object.values(state.files || {});
+                const totalBytes = list.reduce((s, f) => s + (Number(f.sizeBytes) || 0), 0);
+                const images = list.filter(f => f.category === 'image').length;
+                const videos = list.filter(f => f.category === 'video').length;
+                const docs = list.filter(f => f.category === 'doc').length;
+
+                document.getElementById('statStorageUsed').innerText = this.formatBytes(totalBytes);
+                document.getElementById('statImagesCount').innerText = images;
+                document.getElementById('statVideosCount').innerText = videos;
+                document.getElementById('statDocsCount').innerText = docs;
+            },
+
+            setCategory(cat) {
+                state.activeCategory = cat;
+                ['all', 'image', 'video', 'doc'].forEach(c => {
+                    document.getElementById(`chip-${c}`).classList.toggle('active', c === cat);
+                });
+                this.renderFiles();
+            },
+
+            setSearch(val) {
+                state.searchQuery = val.toLowerCase().trim();
+                this.renderFiles();
+            },
+
+            renderFiles() {
+                const grid = document.getElementById('filesGrid');
+                let list = Object.values(state.files || {}).sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+
+                if (state.activeCategory !== 'all') {
+                    list = list.filter(f => f.category === state.activeCategory);
+                }
+                if (state.searchQuery) {
+                    list = list.filter(f => (f.name || '').toLowerCase().includes(state.searchQuery));
+                }
+
+                if (list.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 50px 20px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); color: var(--text-muted);">
+                            <i class="fa-solid fa-box-open" style="font-size: 2.8rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                            <p>Koi file nahi mili. Upar box se images, videos ya files upload karein!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = list.map(item => {
+                    let previewHtml = '';
+                    let badgeColor = 'var(--accent-blue)';
+                    let badgeLabel = 'FILE';
+
+                    if (item.category === 'image') {
+                        previewHtml = `<img src="${item.fileUrl}" alt="${this.escapeHtml(item.name)}" loading="lazy">`;
+                        badgeColor = 'var(--accent-purple)';
+                        badgeLabel = 'IMAGE';
+                    } else if (item.category === 'video') {
+                        previewHtml = `
+                            <video src="${item.fileUrl}" muted preload="metadata"></video>
+                            <div style="position: absolute; width: 42px; height: 42px; border-radius: 50%; background: rgba(168,85,247,0.88); display: flex; align-items: center; justify-content: center; color: #fff;">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                        `;
+                        badgeColor = 'var(--accent-gold)';
+                        badgeLabel = 'VIDEO';
+                    } else {
+                        const ext = (item.name.split('.').pop() || 'DOC').toUpperCase();
+                        previewHtml = `
+                            <div style="text-align: center;">
+                                <i class="fa-solid fa-file-lines" style="font-size: 2.8rem; color: var(--accent-blue);"></i>
+                                <div style="font-size: 0.72rem; font-weight: 800; color: var(--text-secondary); margin-top: 6px;">.${this.escapeHtml(ext)}</div>
+                            </div>
+                        `;
+                        badgeLabel = ext;
+                    }
+
+                    return `
+                        <div class="file-card">
+                            <div class="file-thumb" onclick="app.openPreview('${item.id}')">
+                                ${previewHtml}
+                                <span class="badge-type" style="color: ${badgeColor};">${badgeLabel}</span>
+                                <span class="badge-size">${this.formatBytes(item.sizeBytes)}</span>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-title" onclick="app.openPreview('${item.id}')" title="${this.escapeHtml(item.name)}">${this.escapeHtml(item.name)}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">
+                                    ${new Date(item.uploadedAt).toLocaleString()}
+                                </div>
+                                <div style="display: flex; gap: 6px; margin-top: auto; padding-top: 6px;">
+                                    <button class="btn-gradient" style="flex: 1; padding: 7px 8px; font-size: 0.75rem; border-radius: 9px;" onclick="app.downloadFile('${item.id}')">
+                                        <i class="fa-solid fa-download"></i> Download
+                                    </button>
+                                    <button class="btn-glass" style="padding: 7px 10px; font-size: 0.75rem; border-radius: 9px;" title="Preview" onclick="app.openPreview('${item.id}')">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button class="btn-glass" style="padding: 7px 10px; font-size: 0.75rem; border-radius: 9px; color: var(--accent-red);" title="Delete" onclick="app.deleteFile('${item.id}')">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            openPreview(fileId) {
+                const item = state.files[fileId];
+                if (!item) return;
+
+                document.getElementById('previewFileName').innerText = item.name;
+                document.getElementById('previewFileMeta').innerText = `${this.formatBytes(item.sizeBytes)} • Saved on ${new Date(item.uploadedAt).toLocaleString()}`;
+                document.getElementById('previewDownloadBtn').onclick = () => this.downloadFile(fileId);
+
+                const box = document.getElementById('previewMediaBox');
+                if (item.category === 'image') {
+                    box.innerHTML = `<img src="${item.fileUrl}" style="max-width: 100%; max-height: 68vh; border-radius: 10px;">`;
+                } else if (item.category === 'video') {
+                    box.innerHTML = `<video src="${item.fileUrl}" controls autoplay style="max-width: 100%; max-height: 68vh; border-radius: 10px;"></video>`;
+                } else if (item.mimeType === 'application/pdf') {
+                    box.innerHTML = `<iframe src="${item.fileUrl}" style="width: 100%; height: 65vh; border: none; border-radius: 8px;"></iframe>`;
+                } else if (item.mimeType.startsWith('audio/')) {
+                    box.innerHTML = `<audio src="${item.fileUrl}" controls autoplay style="width: 100%;"></audio>`;
+                } else {
+                    box.innerHTML = `
+                        <div style="padding: 30px;">
+                            <i class="fa-solid fa-file-zipper gradient-text" style="font-size: 3.5rem; margin-bottom: 12px;"></i>
+                            <div style="font-size: 0.95rem; font-weight: 700;">${this.escapeHtml(item.name)}</div>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px;">Is file ko apne device mein save karne ke liye upar <strong>Download</strong> button dabayein.</p>
+                        </div>
+                    `;
+                }
+
+                this.openModal('previewModal');
+            },
+
+            closePreview() {
+                document.getElementById('previewMediaBox').innerHTML = '';
+                this.closeModal('previewModal');
+            },
+
+            downloadFile(fileId) {
+                const item = state.files[fileId];
+                if (!item) return;
+
+                const a = document.createElement('a');
+                a.href = item.fileUrl;
+                a.download = item.name || 'file_download';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                this.showToast(`⬇️ Downloading "${item.name}"...`);
+            },
+
+            deleteFile(fileId) {
+                const item = state.files[fileId];
+                if (!item || !state.currentUser) return;
+
+                if (confirm(`Delete "${item.name}" permanently from Firebase?`)) {
+                    remove(ref(db, `cloudFiles/${state.currentUser}/${fileId}`)).then(() => {
+                        this.showToast('🗑️ File deleted!');
+                    });
+                }
+            },
+
+            escapeHtml(str) {
+                return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            },
+
+            openModal(id) {
+                document.getElementById(id).classList.add('active');
+            },
+
+            closeModal(id) {
+                document.getElementById(id).classList.remove('active');
+            },
+
+            showToast(msg) {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i> <span>${msg}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(10px)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        window.app = app;
+        window.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+                      </html>
