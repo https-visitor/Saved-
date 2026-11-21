@@ -417,6 +417,38 @@
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Multi-Select Checkbox & Bulk Action Bar */
+        .select-checkbox {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            z-index: 10;
+            cursor: pointer;
+            accent-color: var(--accent-purple);
+            transform: scale(1.15);
+        }
+        .file-card.selected {
+            border: 2px solid var(--accent-purple);
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.35);
+        }
+        .bulk-toolbar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(168, 85, 247, 0.14);
+            border: 1px solid var(--accent-purple);
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .bulk-toolbar.active {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -543,6 +575,30 @@
                 </div>
             </div>
 
+            <!-- Bulk Action Toolbar -->
+            <div class="bulk-toolbar" id="bulkToolbar">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.85rem; font-weight: 800; color: #fff;">
+                        <i class="fa-solid fa-check-double" style="color: var(--accent-purple);"></i>
+                        <span id="selectedCountText">0</span> Selected
+                    </span>
+                    <button class="btn-glass" style="padding: 5px 10px; font-size: 0.75rem;" onclick="app.selectAllVisible()">
+                        Select All
+                    </button>
+                    <button class="btn-glass" style="padding: 5px 10px; font-size: 0.75rem;" onclick="app.clearSelection()">
+                        Clear
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-gradient" style="padding: 7px 14px; font-size: 0.78rem;" onclick="app.downloadSelected()">
+                        <i class="fa-solid fa-download"></i> Download Selected
+                    </button>
+                    <button class="btn-glass" style="padding: 7px 14px; font-size: 0.78rem; color: var(--accent-red); border-color: rgba(239,68,68,0.4);" onclick="app.deleteSelected()">
+                        <i class="fa-solid fa-trash-can"></i> Delete Selected
+                    </button>
+                </div>
+            </div>
+
             <!-- Files Grid -->
             <div class="files-grid" id="filesGrid"></div>
         </main>
@@ -621,7 +677,8 @@
             files: {},
             activeCategory: 'all',
             searchQuery: '',
-            activeListener: null
+            activeListener: null,
+            selectedIds: new Set()
         };
 
         const app = {
@@ -720,6 +777,7 @@
                 onValue(state.activeListener, (snapshot) => {
                     state.files = snapshot.val() || {};
                     this.updateStats();
+                    this.updateBulkToolbar();
                     this.renderFiles();
                 });
             },
@@ -945,9 +1003,13 @@
                         badgeLabel = ext;
                     }
 
+                    const isSelected = state.selectedIds.has(item.id);
                     return `
-                        <div class="file-card">
+                        <div class="file-card ${isSelected ? 'selected' : ''}" id="card_${item.id}">
                             <div class="file-thumb" onclick="app.openPreview('${item.id}')">
+                                <input type="checkbox" class="select-checkbox" 
+                                    ${isSelected ? 'checked' : ''} 
+                                    onclick="event.stopPropagation(); app.toggleSelect('${item.id}')">
                                 ${previewHtml}
                                 <span class="badge-type" style="color: ${badgeColor};">${badgeLabel}</span>
                                 <span class="badge-size">${this.formatBytes(item.sizeBytes)}</span>
@@ -1028,8 +1090,86 @@
 
                 if (confirm(`Delete "${item.name}" permanently from Firebase?`)) {
                     remove(ref(db, `cloudFiles/${state.currentUser}/${fileId}`)).then(() => {
+                        state.selectedIds.delete(fileId);
+                        this.updateBulkToolbar();
                         this.showToast('🗑️ File deleted!');
                     });
+                }
+            },
+
+            toggleSelect(fileId) {
+                if (state.selectedIds.has(fileId)) {
+                    state.selectedIds.delete(fileId);
+                } else {
+                    state.selectedIds.add(fileId);
+                }
+                this.updateBulkToolbar();
+                this.renderFiles();
+            },
+
+            selectAllVisible() {
+                let list = Object.values(state.files || {});
+                if (state.activeCategory !== 'all') {
+                    list = list.filter(f => f.category === state.activeCategory);
+                }
+                if (state.searchQuery) {
+                    list = list.filter(f => (f.name || '').toLowerCase().includes(state.searchQuery));
+                }
+                list.forEach(item => state.selectedIds.add(item.id));
+                this.updateBulkToolbar();
+                this.renderFiles();
+            },
+
+            clearSelection() {
+                state.selectedIds.clear();
+                this.updateBulkToolbar();
+                this.renderFiles();
+            },
+
+            updateBulkToolbar() {
+                for (const id of state.selectedIds) {
+                    if (!state.files[id]) state.selectedIds.delete(id);
+                }
+                const count = state.selectedIds.size;
+                const bar = document.getElementById('bulkToolbar');
+                if (bar) {
+                    document.getElementById('selectedCountText').innerText = count;
+                    bar.classList.toggle('active', count > 0);
+                }
+            },
+
+            async downloadSelected() {
+                const ids = Array.from(state.selectedIds);
+                if (!ids.length) return;
+                this.showToast(`⬇️ ${ids.length} files download ho rahi hain...`);
+
+                for (let i = 0; i < ids.length; i++) {
+                    const item = state.files[ids[i]];
+                    if (item) {
+                        const a = document.createElement('a');
+                        a.href = item.fileUrl;
+                        a.download = item.name || `file_${i + 1}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        await new Promise(r => setTimeout(r, 350));
+                    }
+                }
+            },
+
+            async deleteSelected() {
+                const ids = Array.from(state.selectedIds);
+                if (!ids.length || !state.currentUser) return;
+
+                if (confirm(`Kya aap selected ${ids.length} files ko permanently delete karna chahte hain?`)) {
+                    const updates = {};
+                    ids.forEach(id => {
+                        updates[`cloudFiles/${state.currentUser}/${id}`] = null;
+                    });
+                    await update(ref(db), updates);
+                    state.selectedIds.clear();
+                    this.updateBulkToolbar();
+                    this.showToast(`🗑️ ${ids.length} files deleted!`);
                 }
             },
 
@@ -1063,4 +1203,4 @@
         window.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>
-                      </html>
+</html>
