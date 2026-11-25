@@ -449,6 +449,24 @@
         .bulk-toolbar.active {
             display: flex;
         }
+
+        /* Notepad Preview Style */
+        .note-thumb-preview {
+            width: 100%;
+            height: 100%;
+            padding: 36px 14px 28px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95));
+            color: #cbd5e1;
+            font-size: 0.76rem;
+            line-height: 1.45;
+            text-align: left;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body>
@@ -483,8 +501,11 @@
                 </button>
             </form>
 
-            <div style="margin-top: 16px; text-align: center; font-size: 0.74rem; color: var(--text-muted);">
-                <i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i> Same E-Commerce Cloud Architecture • Multi-Device Sync
+            <div style="margin-top: 16px; text-align: center; font-size: 0.74rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                <div><i class="fa-solid fa-circle-check" style="color: var(--accent-green);"></i> Multi-Device Sync • Cloud Vault</div>
+                <button type="button" class="btn-glass" style="padding: 7px 14px; font-size: 0.76rem; color: var(--accent-gold); border-color: rgba(245, 158, 11, 0.35);" onclick="app.openFirebaseModal()">
+                    <i class="fa-solid fa-database"></i> Firebase Config / Change Server
+                </button>
             </div>
         </div>
     </div>
@@ -503,7 +524,10 @@
                     </div>
                 </div>
 
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn-glass" style="padding: 8px 12px; font-size: 0.8rem; color: var(--accent-gold);" onclick="app.openFirebaseModal()">
+                        <i class="fa-solid fa-database"></i> Firebase
+                    </button>
                     <button class="btn-glass" style="padding: 8px 12px; font-size: 0.8rem;" onclick="app.openModal('passwordModal')">
                         <i class="fa-solid fa-key"></i> Password
                     </button>
@@ -540,12 +564,15 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                     <div>
                         <h3 style="font-size: 1rem; font-weight: 800;">
-                            <i class="fa-solid fa-cloud-arrow-up gradient-text"></i> Upload Images, Video Clips & Any File
+                            <i class="fa-solid fa-cloud-arrow-up gradient-text"></i> Upload Files or Write Notes
                         </h3>
                         <p style="font-size: 0.78rem; color: var(--text-secondary);">
-                            Apne phone ya PC storage se kisi bhi photo, short video clip, PDF, ZIP ya document ko cloud mein save karein
+                            Photo, video, document upload karein ya apna personal text note likh kar cloud mein save karein
                         </p>
                     </div>
+                    <button class="btn-gradient" style="padding: 9px 16px; font-size: 0.82rem;" onclick="app.openNoteEditor()">
+                        <i class="fa-solid fa-pen-to-square"></i> + Write New Note
+                    </button>
                 </div>
 
                 <div class="drop-box" id="dropZone" onclick="document.getElementById('driveFileInput').click()">
@@ -567,6 +594,7 @@
                     <button class="cat-chip" id="chip-image" onclick="app.setCategory('image')"><i class="fa-solid fa-image"></i> Images</button>
                     <button class="cat-chip" id="chip-video" onclick="app.setCategory('video')"><i class="fa-solid fa-video"></i> Video Clips</button>
                     <button class="cat-chip" id="chip-doc" onclick="app.setCategory('doc')"><i class="fa-solid fa-file-lines"></i> Files & Docs</button>
+                    <button class="cat-chip" id="chip-note" onclick="app.setCategory('note')"><i class="fa-solid fa-note-sticky"></i> Notes</button>
                 </div>
 
                 <div style="position: relative; width: 100%; max-width: 300px;">
@@ -625,6 +653,104 @@
         </div>
     </div>
 
+    <!-- NOTEPAD CREATE / EDIT MODAL -->
+    <div class="modal" id="noteModal" onclick="if(event.target===this) app.closeModal('noteModal')">
+        <div class="modal-content" style="max-width: 620px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h3 id="noteModalTitle" style="font-size: 1.1rem; font-weight: 800;">
+                    <i class="fa-solid fa-note-sticky gradient-text"></i> Write New Note
+                </h3>
+                <button class="btn-glass" style="padding: 6px 11px;" onclick="app.closeModal('noteModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="event.preventDefault(); app.saveNote();">
+                <input type="hidden" id="editNoteId">
+                <div class="form-group">
+                    <label>Note Title *</label>
+                    <input type="text" id="noteTitleInp" class="form-control" placeholder="e.g. Important Passwords, Shopping List, Study Notes..." required>
+                </div>
+                <div class="form-group">
+                    <label>Write Your Text / Note *</label>
+                    <textarea id="noteContentInp" class="form-control" rows="10" style="resize: vertical; line-height: 1.55;" placeholder="Yahan apna text likhein..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" class="btn-glass" style="padding: 10px 16px;" onclick="app.closeModal('noteModal')">Cancel</button>
+                    <button type="submit" class="btn-gradient" style="padding: 10px 20px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Note to Cloud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIREBASE CONFIG SETTINGS MODAL -->
+    <div class="modal" id="firebaseModal" onclick="if(event.target===this) app.closeModal('firebaseModal')">
+        <div class="modal-content" style="max-width: 520px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="font-size: 1.08rem; font-weight: 800;">
+                    <i class="fa-solid fa-fire gradient-text"></i> Firebase Server Configuration
+                </h3>
+                <button class="btn-glass" style="padding: 6px 11px;" onclick="app.closeModal('firebaseModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 14px;">
+                Apne naye Firebase Project ka Config yahan paste karein ya neeche fields bharein. Save karne par app naye database se connect ho jayega.
+            </p>
+
+            <!-- Quick JSON / JS Snippet Paste Box -->
+            <div class="form-group">
+                <label style="color: var(--accent-gold);">⚡ Quick Paste (Firebase Console se copy kiya config paste karein)</label>
+                <textarea id="fbRawPaste" class="form-control" rows="3" style="font-size: 0.78rem; font-family: monospace;" placeholder='Paste: { apiKey: "...", authDomain: "...", databaseURL: "...", projectId: "..." }' oninput="app.parseFirebaseSnippet(this.value)"></textarea>
+            </div>
+
+            <form onsubmit="event.preventDefault(); app.saveFirebaseConfig();">
+                <div class="form-group">
+                    <label>apiKey *</label>
+                    <input type="text" id="fbApiKey" class="form-control" placeholder="AIzaSy..." required>
+                </div>
+                <div class="form-group">
+                    <label>databaseURL * (Realtime Database URL)</label>
+                    <input type="url" id="fbDatabaseURL" class="form-control" placeholder="https://your-project-default-rtdb.firebaseio.com" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>projectId *</label>
+                        <input type="text" id="fbProjectId" class="form-control" placeholder="your-project-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>authDomain</label>
+                        <input type="text" id="fbAuthDomain" class="form-control" placeholder="your-project.firebaseapp.com">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>storageBucket</label>
+                        <input type="text" id="fbStorageBucket" class="form-control" placeholder="your-project.firebasestorage.app">
+                    </div>
+                    <div class="form-group">
+                        <label>messagingSenderId</label>
+                        <input type="text" id="fbSenderId" class="form-control" placeholder="1094207...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>appId</label>
+                    <input type="text" id="fbAppId" class="form-control" placeholder="1:1094207...:web:...">
+                </div>
+
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                    <button type="submit" class="btn-gradient" style="flex: 1; padding: 11px;">
+                        <i class="fa-solid fa-plug-circle-check"></i> Save & Connect Firebase
+                    </button>
+                    <button type="button" class="btn-glass" style="padding: 11px 14px; color: var(--accent-red);" onclick="app.resetFirebaseConfig()">
+                        Reset Default
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- CHANGE PASSWORD MODAL -->
     <div class="modal" id="passwordModal" onclick="if(event.target===this) app.closeModal('passwordModal')">
         <div class="modal-content" style="max-width: 400px;">
@@ -657,8 +783,7 @@
         import { getDatabase, ref, set, get, update, remove, onValue, off } 
                from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-        // Same Working Firebase Configuration from your E-Commerce App
-        const firebaseConfig = {
+        const DEFAULT_FIREBASE_CONFIG = {
             apiKey: "AIzaSyDeJeap763kAEYjjCXaTP4EEDfvmE29hEw",
             authDomain: "saurabhadmin-fd6cb.firebaseapp.com",
             databaseURL: "https://saurabhadmin-fd6cb-default-rtdb.firebaseio.com",
@@ -668,8 +793,29 @@
             appId: "1:1094207249669:web:66b4c2f55805c44be52b6c"
         };
 
-        const fbApp = initializeApp(firebaseConfig);
-        const db = getDatabase(fbApp);
+        let activeFirebaseConfig = DEFAULT_FIREBASE_CONFIG;
+        try {
+            const customCfg = localStorage.getItem('rudra_custom_firebase_config');
+            if (customCfg) {
+                const parsed = JSON.parse(customCfg);
+                if (parsed && parsed.apiKey && parsed.databaseURL) {
+                    activeFirebaseConfig = parsed;
+                }
+            }
+        } catch (e) {
+            console.warn('Invalid custom config, using default.');
+        }
+
+        let fbApp, db;
+        try {
+            fbApp = initializeApp(activeFirebaseConfig);
+            db = getDatabase(fbApp);
+        } catch (err) {
+            alert('Firebase Config Error: ' + err.message + '\nResetting to default Firebase.');
+            localStorage.removeItem('rudra_custom_firebase_config');
+            fbApp = initializeApp(DEFAULT_FIREBASE_CONFIG);
+            db = getDatabase(fbApp);
+        }
 
         window.state = {
             authMode: 'login',
@@ -942,7 +1088,7 @@
 
             setCategory(cat) {
                 state.activeCategory = cat;
-                ['all', 'image', 'video', 'doc'].forEach(c => {
+                ['all', 'image', 'video', 'doc', 'note'].forEach(c => {
                     document.getElementById(`chip-${c}`).classList.toggle('active', c === cat);
                 });
                 this.renderFiles();
@@ -992,6 +1138,10 @@
                         `;
                         badgeColor = 'var(--accent-gold)';
                         badgeLabel = 'VIDEO';
+                    } else if (item.category === 'note') {
+                        previewHtml = `<div class="note-thumb-preview">${this.escapeHtml(item.noteText || '')}</div>`;
+                        badgeColor = 'var(--accent-green)';
+                        badgeLabel = 'NOTE';
                     } else {
                         const ext = (item.name.split('.').pop() || 'DOC').toUpperCase();
                         previewHtml = `
@@ -1051,6 +1201,20 @@
                     box.innerHTML = `<video src="${item.fileUrl}" controls autoplay style="max-width: 100%; max-height: 68vh; border-radius: 10px;"></video>`;
                 } else if (item.mimeType === 'application/pdf') {
                     box.innerHTML = `<iframe src="${item.fileUrl}" style="width: 100%; height: 65vh; border: none; border-radius: 8px;"></iframe>`;
+                } else if (item.category === 'note') {
+                    box.innerHTML = `
+                        <div style="width: 100%; text-align: left;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px; justify-content: flex-end;">
+                                <button class="btn-glass" style="padding: 6px 12px; font-size: 0.78rem;" onclick="app.copyNoteText('${item.id}')">
+                                    <i class="fa-solid fa-copy"></i> Copy Text
+                                </button>
+                                <button class="btn-gradient" style="padding: 6px 12px; font-size: 0.78rem;" onclick="app.closePreview(); app.openNoteEditor('${item.id}')">
+                                    <i class="fa-solid fa-pen"></i> Edit Note
+                                </button>
+                            </div>
+                            <pre style="white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: 0.92rem; line-height: 1.6; color: #f8fafc; background: rgba(255,255,255,0.03); padding: 14px; border-radius: 10px; max-height: 55vh; overflow-y: auto;">${this.escapeHtml(item.noteText || '')}</pre>
+                        </div>
+                    `;
                 } else if (item.mimeType.startsWith('audio/')) {
                     box.innerHTML = `<audio src="${item.fileUrl}" controls autoplay style="width: 100%;"></audio>`;
                 } else {
@@ -1113,7 +1277,10 @@
                     list = list.filter(f => f.category === state.activeCategory);
                 }
                 if (state.searchQuery) {
-                    list = list.filter(f => (f.name || '').toLowerCase().includes(state.searchQuery));
+                    list = list.filter(f => 
+                        (f.name || '').toLowerCase().includes(state.searchQuery) ||
+                        (f.noteText || '').toLowerCase().includes(state.searchQuery)
+                    );
                 }
                 list.forEach(item => state.selectedIds.add(item.id));
                 this.updateBulkToolbar();
@@ -1175,6 +1342,125 @@
 
             escapeHtml(str) {
                 return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            },
+
+            openNoteEditor(fileId = null) {
+                if (fileId && state.files[fileId]) {
+                    const item = state.files[fileId];
+                    document.getElementById('noteModalTitle').innerHTML = `<i class="fa-solid fa-pen gradient-text"></i> Edit Note`;
+                    document.getElementById('editNoteId').value = fileId;
+                    document.getElementById('noteTitleInp').value = item.name.replace(/\.txt$/i, '');
+                    document.getElementById('noteContentInp').value = item.noteText || '';
+                } else {
+                    document.getElementById('noteModalTitle').innerHTML = `<i class="fa-solid fa-note-sticky gradient-text"></i> Write New Note`;
+                    document.getElementById('editNoteId').value = '';
+                    document.getElementById('noteTitleInp').value = '';
+                    document.getElementById('noteContentInp').value = '';
+                }
+                this.openModal('noteModal');
+            },
+
+            async saveNote() {
+                if (!state.currentUser) return;
+                const editId = document.getElementById('editNoteId').value;
+                const rawTitle = document.getElementById('noteTitleInp').value.trim();
+                const content = document.getElementById('noteContentInp').value;
+
+                if (!rawTitle || !content.trim()) return;
+
+                const fileName = rawTitle.endsWith('.txt') ? rawTitle : `${rawTitle}.txt`;
+                const textDataUrl = 'data:text/plain;charset=utf-8,' + encodeURIComponent(content);
+                const fileId = editId || ('note_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6));
+
+                const payload = {
+                    id: fileId,
+                    name: fileName,
+                    category: 'note',
+                    mimeType: 'text/plain',
+                    noteText: content,
+                    sizeBytes: new Blob([content]).size,
+                    fileUrl: textDataUrl,
+                    uploadedAt: Date.now()
+                };
+
+                try {
+                    await set(ref(db, `cloudFiles/${state.currentUser}/${fileId}`), payload);
+                    this.closeModal('noteModal');
+                    this.showToast(editId ? '✅ Note updated!' : '📝 Note saved to Cloud!');
+                } catch (err) {
+                    this.showToast('❌ Error saving note: ' + err.message);
+                }
+            },
+
+            copyNoteText(fileId) {
+                const item = state.files[fileId];
+                if (!item || !item.noteText) return;
+                navigator.clipboard.writeText(item.noteText).then(() => {
+                    this.showToast('📋 Note text copied!');
+                });
+            },
+
+            openFirebaseModal() {
+                document.getElementById('fbRawPaste').value = '';
+                document.getElementById('fbApiKey').value = activeFirebaseConfig.apiKey || '';
+                document.getElementById('fbDatabaseURL').value = activeFirebaseConfig.databaseURL || '';
+                document.getElementById('fbProjectId').value = activeFirebaseConfig.projectId || '';
+                document.getElementById('fbAuthDomain').value = activeFirebaseConfig.authDomain || '';
+                document.getElementById('fbStorageBucket').value = activeFirebaseConfig.storageBucket || '';
+                document.getElementById('fbSenderId').value = activeFirebaseConfig.messagingSenderId || '';
+                document.getElementById('fbAppId').value = activeFirebaseConfig.appId || '';
+                this.openModal('firebaseModal');
+            },
+
+            parseFirebaseSnippet(rawText) {
+                const keys = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
+                const fieldMap = {
+                    apiKey: 'fbApiKey',
+                    authDomain: 'fbAuthDomain',
+                    databaseURL: 'fbDatabaseURL',
+                    projectId: 'fbProjectId',
+                    storageBucket: 'fbStorageBucket',
+                    messagingSenderId: 'fbSenderId',
+                    appId: 'fbAppId'
+                };
+                keys.forEach(k => {
+                    const regex = new RegExp(`["']?${k}["']?\\s*:\\s*["']([^"']+)["']`);
+                    const match = rawText.match(regex);
+                    if (match && match[1]) {
+                        document.getElementById(fieldMap[k]).value = match[1].trim();
+                    }
+                });
+            },
+
+            saveFirebaseConfig() {
+                const newConfig = {
+                    apiKey: document.getElementById('fbApiKey').value.trim(),
+                    databaseURL: document.getElementById('fbDatabaseURL').value.trim(),
+                    projectId: document.getElementById('fbProjectId').value.trim(),
+                    authDomain: document.getElementById('fbAuthDomain').value.trim(),
+                    storageBucket: document.getElementById('fbStorageBucket').value.trim(),
+                    messagingSenderId: document.getElementById('fbSenderId').value.trim(),
+                    appId: document.getElementById('fbAppId').value.trim()
+                };
+
+                if (!newConfig.apiKey || !newConfig.databaseURL || !newConfig.projectId) {
+                    this.showToast('❌ apiKey, databaseURL aur projectId zaroori hain!');
+                    return;
+                }
+
+                localStorage.setItem('rudra_custom_firebase_config', JSON.stringify(newConfig));
+                localStorage.removeItem('rudra_drive_username'); // Purane server ka session clear karein
+                this.showToast('✅ New Firebase Config Saved! Reconnecting...');
+                setTimeout(() => location.reload(), 900);
+            },
+
+            resetFirebaseConfig() {
+                if (confirm('Kya aap default Firebase configuration par wapas jana chahte hain?')) {
+                    localStorage.removeItem('rudra_custom_firebase_config');
+                    localStorage.removeItem('rudra_drive_username');
+                    this.showToast('🔄 Default Firebase restored! Reloading...');
+                    setTimeout(() => location.reload(), 900);
+                }
             },
 
             openModal(id) {
